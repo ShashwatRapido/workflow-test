@@ -1,0 +1,31 @@
+name: test
+
+on:
+  push:
+    branches:
+      - main
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      -
+        name: Install git-crypt
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -qq -y git-crypt
+      -
+        name: Decrypt
+        run: |
+          echo "$BASE64_KEY" | base64 --decode > keyfile.der
+          git-crypt unlock keyfile.der
+        env:
+          BASE64_KEY: ${{ secrets.CERTIFICATE_BASE64 }}
+      -
+        name: echo
+        run: |
+          cat secrets.json
